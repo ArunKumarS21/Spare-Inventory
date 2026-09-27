@@ -44,12 +44,9 @@ header{background:#0f172a;color:white;padding:18px 16px;position:sticky;top:0;z-
     <div style="color:#94a3b8;font-size:0.9rem;margin-bottom:20px;">Sign in to continue</div>
     <input id="loginEmail" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:0.95rem;">
     <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:10px;margin-bottom:14px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:0.95rem;">
-    <button id="loginBtn" onclick="doAuthAction()" style="width:100%;padding:11px;border:none;border-radius:8px;background:#3b82f6;color:#fff;font-weight:600;font-size:0.95rem;cursor:pointer;">Log In</button>
+    <button id="loginBtn" onclick="doLogin()" style="width:100%;padding:11px;border:none;border-radius:8px;background:#3b82f6;color:#fff;font-weight:600;font-size:0.95rem;cursor:pointer;">Log In</button>
     <div id="loginError" style="color:#ef4444;font-size:0.85rem;margin-top:10px;min-height:1.2em;"></div>
-    <div style="text-align:center;margin-top:6px;font-size:0.85rem;color:#94a3b8;">
-      <span id="toggleModeText">Don't have an account?</span>
-      <a href="#" onclick="toggleAuthMode();return false;" id="toggleModeLink" style="color:#3b82f6;text-decoration:none;font-weight:600;">Sign up</a>
-    </div>
+  
   </div>
 </div>
 
@@ -340,31 +337,22 @@ if(authNs){
   showApp();
 }
 
-let authMode = 'login'; // 'login' or 'signup'
-function toggleAuthMode(){
-  authMode = (authMode === 'login') ? 'signup' : 'login';
-  document.getElementById('loginError').innerText = '';
-  document.getElementById('loginBtn').innerText = (authMode === 'login') ? 'Log In' : 'Create Account';
-  document.getElementById('toggleModeText').innerText = (authMode === 'login') ? "Don't have an account?" : 'Already have an account?';
-  document.getElementById('toggleModeLink').innerText = (authMode === 'login') ? 'Sign up' : 'Log in';
-}
-function doAuthAction(){
+function doLogin(){
   const email = document.getElementById('loginEmail').value.trim();
   const pass = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
   errEl.innerText = '';
   if(!authNs){ errEl.innerText = 'Login is not configured yet.'; return; }
   if(!email || !pass){ errEl.innerText = 'Enter both email and password.'; return; }
-  if(pass.length < 6){ errEl.innerText = 'Password must be at least 6 characters.'; return; }
-  const action = (authMode === 'login')
-    ? authNs.signInWithEmailAndPassword(email, pass)
-    : authNs.createUserWithEmailAndPassword(email, pass);
-  action.catch(e => { errEl.innerText = e.message.replace('Firebase: ',''); });
+  authNs.signInWithEmailAndPassword(email, pass).catch(e => {
+    errEl.innerText = e.message.replace('Firebase: ','');
+  });
+}
 }
 function doLogout(){
   if(authNs){ authNs.signOut(); }
 }
-document.getElementById('loginPassword') && document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key==='Enter'){ doAuthAction(); } });
+document.getElementById('loginPassword') && document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key==='Enter'){ doLogin(); } });
 
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ navigator.serviceWorker.register('/sw.js').catch(()=>{}); }); }
 </script>
