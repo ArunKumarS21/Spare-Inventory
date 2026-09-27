@@ -347,7 +347,7 @@ function doLogin(){
   authNs.signInWithEmailAndPassword(email, pass).catch(e => {
     errEl.innerText = e.message.replace('Firebase: ','');
   });
-}
+
 }
 function doLogout(){
   if(authNs){ authNs.signOut(); }
